@@ -1,0 +1,6 @@
+.cocos-project.json
+.idea
+CMakeLists.txt
+frameworks
+runtime
+tools
