@@ -1,7 +1,6 @@
-
 var HelloWorldLayer = cc.Layer.extend({
-    sprite:null,
-    ctor:function () {
+    sprite: null,
+    ctor: function () {
         //////////////////////////////
         // 1. super init first
         this._super();
@@ -16,9 +15,7 @@ var HelloWorldLayer = cc.Layer.extend({
         var closeItem = new cc.MenuItemImage(
             res.CloseNormal_png,
             res.CloseSelected_png,
-            function () {
-                cc.log("Menu is clicked!");
-            }, this);
+            this.onBackCallback, this);
         closeItem.attr({
             x: size.width - 20,
             y: 20,
@@ -35,12 +32,12 @@ var HelloWorldLayer = cc.Layer.extend({
         // 3. add your codes below...
         // add a label shows "Hello World"
         // create and initialize a label
-        //var helloLabel = new cc.LabelTTF("Hello World", "Arial", 38);
-        //// position the label on the center of the screen
-        //helloLabel.x = size.width / 2;
-        //helloLabel.y = 0;
-        //// add the label as a child to this layer
-        //this.addChild(helloLabel, 5);
+        var helloLabel = new cc.LabelTTF("Hello World", "Arial", 38);
+        // position the label on the center of the screen
+        helloLabel.x = size.width / 2;
+        helloLabel.y = 0;
+        // add the label as a child to this layer
+        this.addChild(helloLabel, 5);
 
         // add "HelloWorld" splash screen"
         this.sprite = new cc.Sprite(res.HelloWorld_png);
@@ -58,18 +55,27 @@ var HelloWorldLayer = cc.Layer.extend({
                 cc.scaleTo(2, 1, 1)
             )
         );
-        //helloLabel.runAction(
-        //    cc.spawn(
-        //        cc.moveBy(2.5, cc.p(0, size.height - 40)),
-        //        cc.tintTo(2.5,255,125,0)
-        //    )
-        //);
+
+        helloLabel.runAction(
+            cc.spawn(
+                cc.moveBy(2.5, cc.p(0, size.height - 40)),
+                cc.tintTo(2.5, 255, 125, 0)
+            )
+        );
+        //this.setPosition(50, 50);// 定位（相对左下角）
+        //this.setScale(0.5);// 缩放比例
+        //this.setRotation(180.0);// 旋转角度
         return true;
+    },
+    onBackCallback: function (pSender) {
+        var scene = new cc.Scene();
+        scene.addChild(new SysMenu());
+        cc.director.runScene(new cc.TransitionFade(1.2, scene));
     }
 });
 
 var HelloWorldScene = cc.Scene.extend({
-    onEnter:function () {
+    onEnter: function () {
         this._super();
         var layer = new HelloWorldLayer();
         this.addChild(layer);
