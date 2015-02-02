@@ -133,5 +133,5 @@ MW.SCALE = 1.5;
 MW.WIDTH = 480;
 MW.HEIGHT = 720;
 MW.FONTCOLOR = "#1f2d96";
-MW.menuHeight = 36;
-MW.menuWidth = 123;
+MW.menuHeight = 60;
+MW.menuWidth = 60;
