@@ -6,7 +6,7 @@
   "id": "gameCanvas",
   "renderMode": 0,
   "engineDir": "frameworks/cocos2d-html5",
-  "modules": ["cocos2d"],
+  "modules": ["cocos2d", "gui"],
   "jsList": [
     "src/Resource.js",
     "src/config/GameConfig.js",
@@ -14,6 +14,7 @@
     "src/Effect.js",
     "src/Menu.js",
     "src/AboutLayer.js",
-    "src/ShowLayer.js"
+    "src/ShowLayer.js",
+    "src/PlayLayer.js"
   ]
 }

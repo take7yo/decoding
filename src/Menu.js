@@ -1,5 +1,4 @@
 var SysMenu = cc.Layer.extend({
-    _ship: null,
     _mode: MW.MODE.EASY,
     _grade: MW.GRADE.DIGITAL10,
     _easyMode: null,
@@ -15,94 +14,73 @@ var SysMenu = cc.Layer.extend({
         var sp = new cc.Sprite(res.backYellowDot_png);
         sp.anchorX = 0;
         sp.anchorY = 0;
-        //sp.scale = MW.SCALE;
-        this.addChild(sp, 0, 1);
-
-        var singalHeight = MW.menuHeight;
-        var singalWidth = MW.menuWidth;
+        this.addChild(sp, 0);
         // help
-        var helpNormal = new cc.Sprite(res.helpNormal_png, cc.rect(0, 0, singalWidth, singalHeight));
-        var helpSelected = new cc.Sprite(res.helpSelected_png, cc.rect(0, 0, singalWidth, singalHeight));
-        var helpDisabled = new cc.Sprite(res.helpSelected_png, cc.rect(0, 0, singalWidth, singalHeight));
-        var help = new cc.MenuItemSprite(helpNormal, helpSelected, helpDisabled, this.onAbout, this);
+        var help = new cc.MenuItemImage(res.helpNormal_png, res.helpSelected_png, this.onAbout, this);
         help.scale = MW.SCALE;
         // menu help
         var menuHelp = new cc.Menu(help);
-        this.addChild(menuHelp, 1, 2);
-        menuHelp.x = MW.WIDTH - 60;
-        menuHelp.y = MW.HEIGHT - 30;
-        // easy
-        var modeEasyNormal = new cc.Sprite(res.modeEasyNormal_png, cc.rect(0, 0, singalWidth, singalHeight));
-        var modeEasySelected = new cc.Sprite(res.modeEasySelected_png, cc.rect(0, 0, singalWidth, singalHeight));
-        var modeEasyDisabled = new cc.Sprite(res.modeEasySelected_png, cc.rect(0, 0, singalWidth, singalHeight));
-        // normal
-        var modeNormalNormal = new cc.Sprite(res.modeNormalNormal_png, cc.rect(0, 0, singalWidth, singalHeight));
-        var modeNormalSelected = new cc.Sprite(res.modeNormalSelected_png, cc.rect(0, 0, singalWidth, singalHeight));
-        var modeNormalDisabled = new cc.Sprite(res.modeNormalSelected_png, cc.rect(0, 0, singalWidth, singalHeight));
-        // hard
-        var modeHardNormal = new cc.Sprite(res.modeHardNormal_png, cc.rect(0, 0, singalWidth, singalHeight));
-        var modeHardSelected = new cc.Sprite(res.modeHardSelected_png, cc.rect(0, 0, singalWidth, singalHeight));
-        var modeHardDisabled = new cc.Sprite(res.modeHardSelected_png, cc.rect(0, 0, singalWidth, singalHeight));
-        // menu items
-        var easyMode = new cc.MenuItemSprite(modeEasyNormal, modeEasySelected, modeEasyDisabled, this.onEasy, this);
-        var normalMode = new cc.MenuItemSprite(modeNormalNormal, modeNormalSelected, modeNormalDisabled, this.onNormal, this);
-        var hardMode = new cc.MenuItemSprite(modeHardNormal, modeHardSelected, modeHardDisabled, this.onHard, this);
-        easyMode.scale = MW.SCALE;
-        normalMode.scale = MW.SCALE;
-        hardMode.scale = MW.SCALE;
+        this.addChild(menuHelp, 1);
+        menuHelp.x = MW.WIDTH - 100;
+        menuHelp.y = MW.HEIGHT - 48;
+        // menu mode node
+        var easyMode = new cc.MenuItemImage(res.modeEasyNormal_png, res.modeEasySelected_png, this.onEasy, this);
+        var normalMode = new cc.MenuItemImage(res.modeNormalNormal_png, res.modeNormalSelected_png, this.onNormal, this);
+        var hardMode = new cc.MenuItemImage(res.modeHardNormal_png, res.modeHardSelected_png, this.onHard, this);
         this._easyMode = easyMode;
         this._normalMode = normalMode;
         this._hardMode = hardMode;
-        // 默认状态
-        easyMode.selected();
         // menu mode
         var menuMode = new cc.Menu(easyMode, normalMode, hardMode);
-        menuMode.alignItemsHorizontallyWithPadding(20);
-        this.addChild(menuMode, 1, 2);
+        menuMode.alignItemsHorizontallyWithPadding(40);
         menuMode.x = MW.WIDTH / 2;
-        menuMode.y = MW.HEIGHT - 120;
-        // grade
-        var gradeBackground = new cc.Sprite(res.backBegin_png);
-        gradeBackground.anchorX = 0;
-        gradeBackground.anchorY = 0;
-        this.addChild(gradeBackground, 0, 1);
+        menuMode.y = MW.HEIGHT - 137;
+        this.addChild(menuMode, 1);
+        // 默认状态
+        easyMode.selected();
+        // grade 九宫格 第一个rc参数是整体大小  第二个rc参数是中间区域的范围
+        var backGrade = new cc.Scale9Sprite(res.backWhite_png,
+            cc.rect(MW.BACK_WHITE.RC_OUT_X, MW.BACK_WHITE.RC_OUT_Y, MW.BACK_WHITE.RC_OUT_WIDTH, MW.BACK_WHITE.RC_OUT_HEIGHT),
+            cc.rect(MW.BACK_WHITE.RC_IN_X, MW.BACK_WHITE.RC_IN_Y, MW.BACK_WHITE.RC_IN_WIDTH, MW.BACK_WHITE.RC_IN_HEIGHT));
+        backGrade.x = MW.WIDTH / 2;
+        backGrade.y = 330;
+        backGrade.width = MW.BACK_WHITE.WIDTH;
+        backGrade.height = MW.BACK_WHITE.HEIGHT;
+        this.addChild(backGrade, 0);
         // grade nodes
         var flare = new cc.Sprite(res.flare_jpg);
         this.addChild(flare, 15, 10);
         flare.visible = false;
+        var singalHeight = MW.menuHeight;
+        var singalWidth = MW.menuWidth;
         for (var i = 2; i < 11; i++) {
             var gradeImages = new Object();
             var currentGrade = i.toString();
-            var nodeRect = cc.rect(0, -20, singalWidth, singalHeight + 20);
             gradeImages.normal = new cc.Sprite(res['grade' + currentGrade + '_png']);
             gradeImages.selected = new cc.Sprite(res['grade' + currentGrade + 'Selected_png']);
             gradeImages.disabled = new cc.Sprite(res['grade' + currentGrade + 'Selected_png']);
-            gradeImages.normal.setTextureRect(nodeRect);
-            gradeImages.selected.setTextureRect(nodeRect);
-            gradeImages.disabled.setTextureRect(nodeRect);
             var grade = new cc.MenuItemSprite(gradeImages.normal, gradeImages.selected, gradeImages.disabled, function (grade) {
                 this.onButtonEffect();
                 flareEffect(flare, this, this.onNewGame.bind(this, grade));
             }.bind(this, currentGrade));
-            grade.scale = MW.SCALE;
+            grade.height = singalHeight + 40;
             this._grades[i] = grade;
         }
-        // 默认状态
-        // this._grades[MW.GRADE.DIGITAL2].selected();
         // menu mode
         var menuGrades = new cc.Menu(this._grades.slice(2));
         menuGrades.alignItemsInColumns(3, 3, 3);
-        this.addChild(menuGrades, 1, 2);
         menuGrades.x = MW.WIDTH / 2;
-        menuGrades.y = MW.HEIGHT / 2;
+        menuGrades.y = 350;
+        this.addChild(menuGrades, 1);
 
-        //this.schedule(this.update, 0.1);
-        //
-        //this._ship = new cc.Sprite("#ship03.png");
-        //this.addChild(this._ship, 0, 4);
-        //this._ship.x = Math.random() * winSize.width;
-        //this._ship.y = 0;
-        //this._ship.runAction(cc.moveBy(2, cc.p(Math.random() * winSize.width, this._ship.y + winSize.height + 100)));
+        cc.log('anchorX: ' + menuGrades.anchorX + '\nanchorY: ' + menuGrades.anchorY + '\nx: ' + menuGrades.x + '\ny: ' + menuGrades.y + '\ncontentSize: ' + JSON.stringify(menuGrades.getContentSize()));
+        // rank menu
+        var rank = new cc.MenuItemImage(res.rankNormal_png, res.rankSelected_png, this.onRank, this);
+        var menuRank = new cc.Menu(rank);
+        menuRank.alignItemsHorizontally();
+        menuRank.x = MW.WIDTH / 2;
+        menuRank.y = 88;
+        this.addChild(menuRank, 1, 2);
 
         if (MW.SOUND) {
             cc.audioEngine.setMusicVolume(0.7);
@@ -111,6 +89,9 @@ var SysMenu = cc.Layer.extend({
 
         return true;
     },
+    //onTouchBegan: function () {
+    //    cc.log('onTouchBegan!');
+    //},
     onEasy: function () {
         this._mode = MW.MODE.EASY;
         this._easyMode.selected();
@@ -136,9 +117,15 @@ var SysMenu = cc.Layer.extend({
             cc.audioEngine.stopAllEffects();
             var scene = new cc.Scene();
             this._grade = grade;
-            scene.addChild(new ShowLayer(this._mode, this._grade));
+            scene.addChild(new PlayLayer(this._mode, this._grade));
             cc.director.runScene(new cc.TransitionFade(1.2, scene));
         }.bind(this), this);
+    },
+    onRank: function () {
+        this.onButtonEffect();
+        var scene = new cc.Scene();
+        scene.addChild(new AboutLayer());
+        cc.director.runScene(new cc.TransitionFade(1.2, scene));
     },
     onSettings: function (pSender) {
         this.onButtonEffect();
@@ -164,7 +151,7 @@ var SysMenu = cc.Layer.extend({
     },
     onButtonEffect: function () {
         if (MW.SOUND) {
-            var s = cc.audioEngine.playEffect(res.buttonEffet_mp3);
+            var s = cc.audioEngine.playEffect(res.buttonEffect_mp3);
         }
     }
 });

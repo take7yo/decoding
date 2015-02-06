@@ -40,6 +40,24 @@ MW.GRADE_TIME = {
     DIGITAL10: 180.0
 };
 
+MW.BACK_WHITE = {
+    WIDTH: 400,
+    HEIGHT: 380,
+    RC_OUT_X: 0,
+    RC_OUT_Y: 0,
+    RC_OUT_WIDTH: 28,
+    RC_OUT_HEIGHT: 25,
+    RC_IN_X: 12,
+    RC_IN_Y: 12,
+    RC_IN_WIDTH: 1,
+    RC_IN_HEIGHT: 1
+};
+
+MW.SHAPE = {
+    WIDTH: 74,
+    HEIGHT: 70
+};
+
 // number
 MW.NUMBER = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -133,5 +151,5 @@ MW.SCALE = 1.5;
 MW.WIDTH = 480;
 MW.HEIGHT = 720;
 MW.FONTCOLOR = "#1f2d96";
-MW.menuHeight = 60;
-MW.menuWidth = 60;
+MW.menuWidth = 84;
+MW.menuHeight = 77;

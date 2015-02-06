@@ -4,21 +4,15 @@ var AboutLayer = cc.Layer.extend({
         this.init();
     },
     init: function () {
-        var sp = new cc.Sprite(res.loading_png);
+        var sp = new cc.Sprite(res.backYellow_png);
         sp.anchorX = 0;
         sp.anchorY = 0;
         sp.scale = MW.SCALE;
         this.addChild(sp, 0, 1);
 
-        //var cacheImage = cc.textureCache.addImage(res.menuTitle_png);
-        //var title = new cc.Sprite(cacheImage, cc.rect(0, 40, 120, 38));
-        //title.x = winSize.width / 2;
-        //title.y = winSize.height - 60;
-        //this.addChild(title);
-
         var title = new cc.LabelTTF("游戏说明", "Arial", 23, cc.size(MW.WIDTH * 1.25, 0), cc.TEXT_ALIGNMENT_CENTER);
         title.attr({
-            x: winSize.width / 2,
+            x: MW.WIDTH / 2,
             y: MW.HEIGHT - 100,
             anchorX: 0.5,
             anchorY: 0.5
@@ -35,7 +29,7 @@ var AboutLayer = cc.Layer.extend({
         desc += "    如果你每天都坚持练习几分钟，除了会增加注意力以外，更重要的是会拓展你的视幅，该项技能对你快速阅读能力的提高非常有帮助。";
         var about = new cc.LabelTTF(desc, "Arial", 16, cc.size(MW.WIDTH * 0.85, 0), cc.TEXT_ALIGNMENT_LEFT);
         about.attr({
-            x: winSize.width / 2,
+            x: MW.WIDTH / 2,
             y: MW.HEIGHT / 2 + 30,
             anchorX: 0.5,
             anchorY: 0.5
@@ -43,18 +37,10 @@ var AboutLayer = cc.Layer.extend({
         about.setColor(cc.color(MW.FONTCOLOR));
         this.addChild(about);
 
-        //var label = new cc.LabelTTF("Go back", "Arial", 21);
-        //label.setColor(cc.color(MW.FONTCOLOR));
-        //var back = new cc.MenuItemLabel(label, this.onBackCallback);
+        // back
         var back = new cc.MenuItemImage(res.CloseNormal_png, res.CloseSelected_png, this.onBackCallback, this);
-        //back.attr({
-        //    x: winSize.width - 20,
-        //    y: 20,
-        //    anchorX: 0.5,
-        //    anchorY: 0.5
-        //});
         var menu = new cc.Menu(back);
-        menu.x = winSize.width - 30;
+        menu.x = MW.WIDTH - 30;
         menu.y = MW.HEIGHT - 30;
         this.addChild(menu);
 
