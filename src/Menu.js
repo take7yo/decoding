@@ -38,6 +38,7 @@ var SysMenu = cc.Layer.extend({
         this.addChild(menuMode, 1);
         // 默认状态
         easyMode.selected();
+        // 缓存九宫格图片
         // grade 九宫格 第一个rc参数是整体大小  第二个rc参数是中间区域的范围
         var backGrade = new cc.Scale9Sprite(res.backWhite_png,
             cc.rect(MW.BACK_WHITE.RC_OUT_X, MW.BACK_WHITE.RC_OUT_Y, MW.BACK_WHITE.RC_OUT_WIDTH, MW.BACK_WHITE.RC_OUT_HEIGHT),
@@ -51,8 +52,6 @@ var SysMenu = cc.Layer.extend({
         var flare = new cc.Sprite(res.flare_jpg);
         this.addChild(flare, 15, 10);
         flare.visible = false;
-        var singalHeight = MW.menuHeight;
-        var singalWidth = MW.menuWidth;
         for (var i = 2; i < 11; i++) {
             var gradeImages = new Object();
             var currentGrade = i.toString();
@@ -63,7 +62,7 @@ var SysMenu = cc.Layer.extend({
                 this.onButtonEffect();
                 flareEffect(flare, this, this.onNewGame.bind(this, grade));
             }.bind(this, currentGrade));
-            grade.height = singalHeight + 40;
+            grade.height = 77 + 40;
             this._grades[i] = grade;
         }
         // menu mode
@@ -73,7 +72,6 @@ var SysMenu = cc.Layer.extend({
         menuGrades.y = 350;
         this.addChild(menuGrades, 1);
 
-        cc.log('anchorX: ' + menuGrades.anchorX + '\nanchorY: ' + menuGrades.anchorY + '\nx: ' + menuGrades.x + '\ny: ' + menuGrades.y + '\ncontentSize: ' + JSON.stringify(menuGrades.getContentSize()));
         // rank menu
         var rank = new cc.MenuItemImage(res.rankNormal_png, res.rankSelected_png, this.onRank, this);
         var menuRank = new cc.Menu(rank);
@@ -89,9 +87,6 @@ var SysMenu = cc.Layer.extend({
 
         return true;
     },
-    //onTouchBegan: function () {
-    //    cc.log('onTouchBegan!');
-    //},
     onEasy: function () {
         this._mode = MW.MODE.EASY;
         this._easyMode.selected();
@@ -117,7 +112,7 @@ var SysMenu = cc.Layer.extend({
             cc.audioEngine.stopAllEffects();
             var scene = new cc.Scene();
             this._grade = grade;
-            scene.addChild(new PlayLayer(this._mode, this._grade));
+            scene.addChild(new ShowLayer(this._mode, this._grade));
             cc.director.runScene(new cc.TransitionFade(1.2, scene));
         }.bind(this), this);
     },
@@ -127,27 +122,17 @@ var SysMenu = cc.Layer.extend({
         scene.addChild(new AboutLayer());
         cc.director.runScene(new cc.TransitionFade(1.2, scene));
     },
-    onSettings: function (pSender) {
-        this.onButtonEffect();
-        var scene = new cc.Scene();
-        scene.addChild(new HelloWorldLayer());
-        cc.director.runScene(new cc.TransitionFade(1.2, scene));
-    },
+    //onSettings: function (pSender) {
+    //    this.onButtonEffect();
+    //    var scene = new cc.Scene();
+    //    scene.addChild(new HelloWorldLayer());
+    //    cc.director.runScene(new cc.TransitionFade(1.2, scene));
+    //},
     onAbout: function (pSender) {
         this.onButtonEffect();
         var scene = new cc.Scene();
         scene.addChild(new AboutLayer());
         cc.director.runScene(new cc.TransitionFade(1.2, scene));
-    },
-    update: function () {
-        if (this._ship.y > 750) {
-            this._ship.x = Math.random() * winSize.width;
-            this._ship.y = 10;
-            this._ship.runAction(cc.moveBy(
-                parseInt(5 * Math.random(), 10),
-                cc.p(Math.random() * winSize.width, this._ship.y + 750)
-            ));
-        }
     },
     onButtonEffect: function () {
         if (MW.SOUND) {

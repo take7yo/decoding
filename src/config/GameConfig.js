@@ -6,14 +6,12 @@ MW.GAME_STATE = {
     PLAY: 1,
     OVER: 2
 };
-
 // mode
 MW.MODE = {
     EASY: 0,
     NORMAL: 1,
     HARD: 2
 };
-
 // grade
 MW.GRADE = {
     DIGITAL2: 2,
@@ -26,7 +24,6 @@ MW.GRADE = {
     DIGITAL9: 9,
     DIGITAL10: 10
 };
-
 // grade time
 MW.GRADE_TIME = {
     DIGITAL2: 10.0,
@@ -39,7 +36,7 @@ MW.GRADE_TIME = {
     DIGITAL9: 120.0,
     DIGITAL10: 180.0
 };
-
+// back white
 MW.BACK_WHITE = {
     WIDTH: 400,
     HEIGHT: 380,
@@ -52,15 +49,25 @@ MW.BACK_WHITE = {
     RC_IN_WIDTH: 1,
     RC_IN_HEIGHT: 1
 };
-
+// shape
 MW.SHAPE = {
     WIDTH: 74,
     HEIGHT: 70
 };
-
 // number
 MW.NUMBER = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
+// digital
+MW.DIGITAL = {
+    D2: [cc.p(137, 505), cc.p(343, 505)],
+    D3: [cc.p(117, 505), cc.p(240, 505), cc.p(363, 505)],
+    D4: [cc.p(97, 505), cc.p(193, 505),cc.p(287, 505), cc.p(383, 505)],
+    D5: [cc.p(117, 575), cc.p(363, 575),cc.p(240, 505), cc.p(117, 435),cc.p(363, 435)],
+    D6: [cc.p(117, 563), cc.p(240, 563),cc.p(363, 563), cc.p(117, 463), cc.p(240, 463),cc.p(363, 463)],
+    D7: [cc.p(240, 595), cc.p(117, 500), cc.p(240, 500),cc.p(363, 500),cc.p(117, 405), cc.p(240, 405),cc.p(363, 405)],
+    D8: [cc.p(97, 563), cc.p(193, 563),cc.p(287, 563), cc.p(383, 563),cc.p(97, 463), cc.p(193, 463),cc.p(287, 463), cc.p(383, 463)],
+    D9: [cc.p(117, 595), cc.p(240, 595),cc.p(363, 595),cc.p(117, 500), cc.p(240, 500),cc.p(363, 500),cc.p(117, 405), cc.p(240, 405),cc.p(363, 405)],
+    D10: [cc.p(78, 563), cc.p(159, 563),cc.p(240, 563), cc.p(321, 563),cc.p(402, 563), cc.p(78, 463), cc.p(159, 463),cc.p(240, 463), cc.p(321, 463),cc.p(402, 463)]
+};
 //keys
 MW.KEYS = [];
 
@@ -151,5 +158,6 @@ MW.SCALE = 1.5;
 MW.WIDTH = 480;
 MW.HEIGHT = 720;
 MW.FONTCOLOR = "#1f2d96";
+MW.FONT_SIZE = 40;
 MW.menuWidth = 84;
 MW.menuHeight = 77;

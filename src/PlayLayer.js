@@ -1,14 +1,27 @@
 var PlayLayer = cc.Layer.extend({
+    _mode: MW.MODE.EASY,
+    _grade: MW.GRADE.DIGITAL2,
+    _resQueue: {},
+    _numQueue: [],
+    _rememberTime: 0.0,
     _shapeIndex: 0,
     _shapeColumn: 0,
     _shapeRow: 0,
     _countdownUnit: 0.01,
     _countdown: 0,
-    ctor: function (mode, grade) {
+    _curShapeSprite: null,
+    _doneShapeSprites: [],
+    _shapeSprites: [],
+    ctor: function (mode, grade, resQueue, numQueue, rememberTime) {
         this._super();
-        this.init(mode, grade);
+        this._mode = mode;
+        this._grade = grade;
+        this._resQueue = resQueue;
+        this._numQueue = this.shuffle(numQueue);
+        this._rememberTime = rememberTime;
+        this.init();
     },
-    init: function (mode, grade) {
+    init: function () {
         var sp = new cc.Sprite(res.backYellowDot_png);
         sp.anchorX = 0;
         sp.anchorY = 0;
@@ -21,86 +34,51 @@ var PlayLayer = cc.Layer.extend({
         menu.y = MW.HEIGHT - 45;
         this.addChild(menu, 1);
 
-        // timer
-        var scoreBackground = new cc.Sprite(res.score_png);
-        scoreBackground.x = MW.WIDTH - 95;
-        scoreBackground.y = MW.HEIGHT - 42;
-        this.addChild(scoreBackground, 1);
-        var gradeTime = this.getGradeTime(grade);
-        var score = new cc.LabelTTF('游戏页面哟╭(╯3╰)╮', "Arial", 15, cc.size(111, 41), cc.TEXT_ALIGNMENT_CENTER, cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-        score.x = scoreBackground.x;
-        score.y = scoreBackground.y;
-        this.addChild(score, 0);
-        this.schedule(this.countdown.bind(this, score, gradeTime), this._countdownUnit, (gradeTime / this._countdownUnit) - 1, 0);
+        // shapes
+        var pointList = this.getPonitList();
+        for (var i = 0; i < this._grade; i++) {
+            var curNum = this._numQueue[i];
+            var curPoint = pointList[i];
+            // 图形
+            var shape = res['shape' + this._resQueue[curNum.toString()] + '_png'];
+            var shapeSprite = new ShapeSprite(this._mode, cc.rect(curPoint.x, curPoint.y, MW.SHAPE.WIDTH, MW.SHAPE.HEIGHT), shape, curNum);
+            this._shapeSprites.push(shapeSprite);
+            this.addChild(shapeSprite, 3);
+        }
 
         // grades background
-        var gradeHeight = 80;
-        var gradesHeight = parseInt(grade / 2 + 0.5) * gradeHeight;
         // grade 九宫格 第一个rc参数是整体大小  第二个rc参数是中间区域的范围
         var backGrade = new cc.Scale9Sprite(res.backWhite_png,
             cc.rect(MW.BACK_WHITE.RC_OUT_X, MW.BACK_WHITE.RC_OUT_Y, MW.BACK_WHITE.RC_OUT_WIDTH, MW.BACK_WHITE.RC_OUT_HEIGHT),
             cc.rect(MW.BACK_WHITE.RC_IN_X, MW.BACK_WHITE.RC_IN_Y, MW.BACK_WHITE.RC_IN_WIDTH, MW.BACK_WHITE.RC_IN_HEIGHT));
         backGrade.attr({
-            anchorX: 0.5,
-            anchorY: 1,
             x: MW.WIDTH / 2,
-            y: 400 + gradesHeight / 2,
-            width: 320,
-            height: gradesHeight + 40
+            y: 270,
+            width: 400,
+            height: 170
         });
         this.addChild(backGrade, 1);
 
-        // 展示方格
-        var numQueue = this.shuffle(MW.NUMBER);
-        var imgQueue = this.shuffle(MW.NUMBER);
-        var resQueue = this.getResultQueue(numQueue, imgQueue, grade);
-        cc.log('img queue: ' + JSON.stringify(imgQueue));
-        cc.log('res queue: ' + JSON.stringify(resQueue));
-        for (var key in resQueue) {
-            this._shapeColumn = this._shapeIndex % 2;
-            this._shapeRow = parseInt(this._shapeIndex / 2);
-            var shapeX = 130 + 145 * this._shapeColumn;
-            var shapeY = backGrade.y - gradeHeight * this._shapeRow - 20;
-            // 图形
-            var shape = new cc.Sprite(res['shape' + resQueue[key].toString() + '_png']);
-            shape.attr({
-                anchorX: 0,
-                anchorY: 1,
-                x: shapeX,
-                y: shapeY
-            });
-            this._shapeIndex++;
-            this.addChild(shape, 2);
-            // 数字
-            var num = new cc.LabelTTF(resQueue[key].toString(), "Arial", 50, cc.size(MW.SHAPE.WIDTH, MW.SHAPE.HEIGHT), cc.TEXT_ALIGNMENT_CENTER, cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-            num.attr({
-                anchorX: 0,
-                anchorY: 1,
-                x: shapeX,
-                y: shapeY
-            });
-            num.setColor(cc.color('#ffffff'));
-            this.addChild(num, 3);
+        var width = 45, height = 42;
+        for (var i = 0; i < 10; i++) {
+            var rowIndex = parseInt(i / 5), x = 98 + 70 * (i % 5), y = 300 - 65 * rowIndex;
+            var numSprite = new NumGridSprite(cc.rect(x, y, width, height), i);
+            this.addChild(numSprite, 3, i);
         }
 
         // answer
-        var answer = new cc.MenuItemImage(res.answerNormal_png, res.answerSelected_png, this.onAnswer, this);
-        var menuAnswer = new cc.Menu(answer);
-        menuAnswer.x = MW.WIDTH / 2;
-        menuAnswer.y = 75;
-        this.addChild(menuAnswer, 2);
+        var confirmBtn = new cc.MenuItemImage(res.confirmNormal_png, res.confirmSelected_png, this.onConfirm, this);
+        var deleteBtn = new cc.MenuItemImage(res.deleteNormal_png, res.deleteSelected_png, this.onDelete, this);
+        var menu = new cc.Menu(confirmBtn, deleteBtn);
+        menu.alignItemsHorizontallyWithPadding(85);
+        menu.x = MW.WIDTH / 2;
+        menu.y = 100;
+        this.addChild(menu, 2);
 
         return true;
     },
-    getGradeTime: function (grade) {
-        return MW.GRADE_TIME['DIGITAL' + grade.toString()];
-    },
-    getResultQueue: function (numQueue, imageQueue, grade) {
-        var resQueue = {};
-        for (var i = 0; i < grade; i++) {
-            resQueue[numQueue[i].toString()] = imageQueue[i];
-        }
-        return resQueue;
+    getPonitList: function () {
+        return MW.DIGITAL['D' + this._grade.toString()];
     },
     shuffle: function (arr) {
         var res = arr.slice();
@@ -109,27 +87,40 @@ var PlayLayer = cc.Layer.extend({
         });
         return res;
     },
-    countdown: function(score, gradeTime) {
-        this._countdown += this._countdownUnit;
-        cc.log('gradeTime: ' + gradeTime + '   countdown: ' + this._countdown);
-        var timeLeft = gradeTime - this._countdown;
-        if (timeLeft <= 0) {
-            timeLeft = 0.0;
-            this.unscheduleAllCallbacks();
-            var scene = new cc.Scene();
-            scene.addChild(new SysMenu());
-            cc.director.runScene(new cc.TransitionFade(1.2, scene));
-        }
-        score.setString(timeLeft.toFixed(2));
-    },
     onBackCallback: function (pSender) {
         var scene = new cc.Scene();
         scene.addChild(new SysMenu());
         cc.director.runScene(new cc.TransitionFade(1.2, scene));
     },
-    onAnswer: function (pSender) {
+    onConfirm: function (pSender) {
+        var isSucceeded = false;
+        var doneShapeSprites = this._doneShapeSprites;
+        if (doneShapeSprites.length == this._grade) {
+            for (var i in doneShapeSprites) {
+                var curSprite = doneShapeSprites[i];
+                isSucceeded = (curSprite._num.toString() == curSprite.getNumberLabelString());
+                if (!isSucceeded) break;
+            }
+        }
+
         var scene = new cc.Scene();
-        scene.addChild(new SysMenu());
+        scene.addChild(new ResultLayer(isSucceeded, this._rememberTime));
         cc.director.runScene(new cc.TransitionFade(1.2, scene));
+    },
+    onDelete: function (pSender) {
+        var preShapeSprite = this._doneShapeSprites.pop();
+        if (preShapeSprite) {
+            var numStr = preShapeSprite.getNumberLabelString();
+            if (numStr) {
+                var preNumGridSprite = this.getChildByTag(parseInt(numStr));
+                preNumGridSprite.setAvailable();
+            }
+            if (MW.MODE.EASY != this._mode) {
+                preShapeSprite.addCoverSprite();
+                this._curShapeSprite = preShapeSprite;
+            }
+            preShapeSprite.setNumberLabelString('');
+        }
+        this._shapeSprites.unshift(preShapeSprite);
     }
 });

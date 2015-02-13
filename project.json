@@ -15,6 +15,9 @@
     "src/Menu.js",
     "src/AboutLayer.js",
     "src/ShowLayer.js",
-    "src/PlayLayer.js"
+    "src/PlayLayer.js",
+    "src/ResultLayer.js",
+    "src/NumGridSprite.js",
+    "src/ShapeSprite.js"
   ]
 }

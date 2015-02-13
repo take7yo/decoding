@@ -1,14 +1,23 @@
 var ShowLayer = cc.Layer.extend({
+    _grade: MW.GRADE.DIGITAL2,
+    _mode: MW.MODE.EASY,
+    _resQueue: {},
+    _numQueue: [],
+    _imgQueue: [],
     _shapeIndex: 0,
     _shapeColumn: 0,
     _shapeRow: 0,
     _countdownUnit: 0.01,
-    _countdown: 0,
+    _score: null,
+    _gradeTime: 0.0,
+    _rememberTime: 0.0,
     ctor: function (mode, grade) {
         this._super();
-        this.init(mode, grade);
+        this._grade = grade;
+        this._mode = mode;
+        this.init();
     },
-    init: function (mode, grade) {
+    init: function () {
         var sp = new cc.Sprite(res.backYellowDot_png);
         sp.anchorX = 0;
         sp.anchorY = 0;
@@ -26,16 +35,17 @@ var ShowLayer = cc.Layer.extend({
         scoreBackground.x = MW.WIDTH - 95;
         scoreBackground.y = MW.HEIGHT - 42;
         this.addChild(scoreBackground, 1);
-        var gradeTime = this.getGradeTime(grade);
-        var score = new cc.LabelTTF(gradeTime.toFixed(2), "Arial", 15, cc.size(111, 41), cc.TEXT_ALIGNMENT_CENTER, cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
-        score.x = scoreBackground.x;
-        score.y = scoreBackground.y;
-        this.addChild(score, 0);
-        this.schedule(this.countdown.bind(this, score, gradeTime), this._countdownUnit, (gradeTime / this._countdownUnit) - 1, 0);
+        this._gradeTime = this.getGradeTime();
+        this._score = new cc.LabelTTF(this._gradeTime.toFixed(2), "Arial", 15, cc.size(111, 41), cc.TEXT_ALIGNMENT_CENTER, cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
+        this._score.x = scoreBackground.x;
+        this._score.y = scoreBackground.y;
+        this.addChild(this._score, 0);
+        //this.scheduleUpdate();
+        this.schedule(this.countdown);
 
         // grades background
         var gradeHeight = 80;
-        var gradesHeight = parseInt(grade / 2 + 0.5) * gradeHeight;
+        var gradesHeight = parseInt(this._grade / 2 + 0.5) * gradeHeight;
         // grade 九宫格 第一个rc参数是整体大小  第二个rc参数是中间区域的范围
         var backGrade = new cc.Scale9Sprite(res.backWhite_png,
             cc.rect(MW.BACK_WHITE.RC_OUT_X, MW.BACK_WHITE.RC_OUT_Y, MW.BACK_WHITE.RC_OUT_WIDTH, MW.BACK_WHITE.RC_OUT_HEIGHT),
@@ -51,18 +61,19 @@ var ShowLayer = cc.Layer.extend({
         this.addChild(backGrade, 1);
 
         // 展示方格
-        var numQueue = this.shuffle(MW.NUMBER);
-        var imgQueue = this.shuffle(MW.NUMBER);
-        var resQueue = this.getResultQueue(numQueue, imgQueue, grade);
-        cc.log('img queue: ' + JSON.stringify(imgQueue));
-        cc.log('res queue: ' + JSON.stringify(resQueue));
-        for (var key in resQueue) {
+        this._numQueue = this.shuffle(MW.NUMBER);
+        this._imgQueue = this.shuffle(MW.NUMBER);
+        this._resQueue = this.getResultQueue();
+        cc.log('num queue: ' + JSON.stringify(this._numQueue));
+        cc.log('img queue: ' + JSON.stringify(this._imgQueue));
+        cc.log('res queue: ' + JSON.stringify(this._resQueue));
+        for (var i = 0; i < this._grade; i++) {
             this._shapeColumn = this._shapeIndex % 2;
             this._shapeRow = parseInt(this._shapeIndex / 2);
             var shapeX = 130 + 145 * this._shapeColumn;
             var shapeY = backGrade.y - gradeHeight * this._shapeRow - 20;
             // 图形
-            var shape = new cc.Sprite(res['shape' + resQueue[key].toString() + '_png']);
+            var shape = new cc.Sprite(res['shape' + this._resQueue[this._numQueue[i].toString()] + '_png']);
             shape.attr({
                 anchorX: 0,
                 anchorY: 1,
@@ -72,7 +83,7 @@ var ShowLayer = cc.Layer.extend({
             this._shapeIndex++;
             this.addChild(shape, 2);
             // 数字
-            var num = new cc.LabelTTF(resQueue[key].toString(), "Arial", 50, cc.size(MW.SHAPE.WIDTH, MW.SHAPE.HEIGHT), cc.TEXT_ALIGNMENT_CENTER, cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
+            var num = new cc.LabelTTF(this._numQueue[i].toString(), "Arial", 40, cc.size(MW.SHAPE.WIDTH, MW.SHAPE.HEIGHT), cc.TEXT_ALIGNMENT_CENTER, cc.VERTICAL_TEXT_ALIGNMENT_CENTER);
             num.attr({
                 anchorX: 0,
                 anchorY: 1,
@@ -92,13 +103,13 @@ var ShowLayer = cc.Layer.extend({
 
         return true;
     },
-    getGradeTime: function (grade) {
-        return MW.GRADE_TIME['DIGITAL' + grade.toString()];
+    getGradeTime: function () {
+        return MW.GRADE_TIME['DIGITAL' + this._grade.toString()];
     },
-    getResultQueue: function (numQueue, imageQueue, grade) {
+    getResultQueue: function () {
         var resQueue = {};
-        for (var i = 0; i < grade; i++) {
-            resQueue[numQueue[i].toString()] = imageQueue[i];
+        for (var i = 0; i < this._grade; i++) {
+            resQueue[this._numQueue[i].toString()] = this._imgQueue[i].toString();
         }
         return resQueue;
     },
@@ -107,18 +118,18 @@ var ShowLayer = cc.Layer.extend({
         res.sort(function () {
             return Math.random() > .5 ? -1 : 1;
         });
-        return res;
+        return res.slice(0, this._grade);
     },
-    countdown: function(score, gradeTime) {
-        this._countdown += this._countdownUnit;
-        //cc.log('gradeTime: ' + gradeTime + '   countdown: ' + this._countdown);
-        var timeLeft = gradeTime - this._countdown;
-        if (timeLeft <= 0) {
+    countdown: function() {
+        this._rememberTime += cc.director.getDeltaTime();
+        //cc.log('deltaTime: ' + cc.director.getDeltaTime() + '   secondsPerFrame: ' + cc.director.getSecondsPerFrame() + '   rememberTime: ' + this._rememberTime);
+        var timeLeft = this._gradeTime - this._rememberTime;
+        if (timeLeft <= this._countdownUnit) {
             timeLeft = 0.0;
             this.unscheduleAllCallbacks();
             this.onAnswer();
         }
-        score.setString(timeLeft.toFixed(2));
+        this._score.setString(timeLeft.toFixed(2));
     },
     onBackCallback: function (pSender) {
         var scene = new cc.Scene();
@@ -127,7 +138,7 @@ var ShowLayer = cc.Layer.extend({
     },
     onAnswer: function (pSender) {
         var scene = new cc.Scene();
-        scene.addChild(new PlayLayer());
+        scene.addChild(new PlayLayer(this._mode, this._grade, this._resQueue, this._numQueue, this._rememberTime));
         cc.director.runScene(new cc.TransitionFade(1.2, scene));
     }
 });

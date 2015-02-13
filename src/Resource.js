@@ -62,6 +62,7 @@ var res = {
     rankSelected_png: "res/Menus/rank_selected.png",
     score_png: "res/Menus/score.png",
     success_png: "res/Menus/success.png",
+    ticker_png: "res/Menus/ticker.png",
     timer_png: "res/Menus/timer.png",
     // shapes
     shape0_png: "res/Shapes/0.png",
@@ -74,6 +75,7 @@ var res = {
     shape7_png: "res/Shapes/7.png",
     shape8_png: "res/Shapes/8.png",
     shape9_png: "res/Shapes/9.png",
+    shapeCover_png: "res/Shapes/shape_cover.png",
     // others
     HelloWorld_png: "res/HelloWorld.png",
     CloseNormal_png: "res/CloseNormal.png",

@@ -52,7 +52,6 @@ cc.game.onStart = function(){
     cc.view.setDesignResolutionSize(480, 720, cc.ResolutionPolicy.SHOW_ALL);
     cc.view.resizeWithBrowserSize(true);
     cc.director.setProjection(cc.Director.PROJECTION_2D);
-
     if (cc.sys.isNative) {
         var searchPaths = jsb.fileUtils.getSearchPaths();
         searchPaths.push('script');
